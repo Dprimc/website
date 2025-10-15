@@ -197,6 +197,22 @@ h2 {
     margin-top: 0;
 }
 
+.card--story {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.card--story p {
+    margin: 0;
+    line-height: 1.7;
+    color: var(--muted);
+}
+
+.card--story h3 {
+    margin: 0;
+}
+
 .card ul {
     list-style: none;
     padding: 0;
@@ -211,6 +227,101 @@ h2 {
 .card--link {
     display: block;
     text-decoration: none;
+}
+
+.skill-bars {
+    margin-top: 3rem;
+}
+
+.skill-bars__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+}
+
+.skill-bars__summary {
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.skill-bars__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.85rem;
+}
+
+.skill-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.skill-bar__label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    color: var(--muted);
+}
+
+.skill-bar__stats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.skill-bar__level {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.5rem;
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--accent);
+}
+
+.skill-bar--strong .skill-bar__level {
+    background: rgba(52, 211, 153, 0.15);
+    color: #34d399;
+}
+
+.skill-bar--weak .skill-bar__level {
+    background: rgba(249, 115, 22, 0.15);
+    color: #fb923c;
+}
+
+.skill-bar__score {
+    font-variant-numeric: tabular-nums;
+}
+
+.skill-bar__meter {
+    position: relative;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: rgba(56, 189, 248, 0.1);
+    overflow: hidden;
+}
+
+.skill-bar__meter::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: var(--skill-score);
+    background: var(--accent);
+    border-radius: inherit;
+    transition: width 0.3s ease;
+}
+
+.skill-bar--strong .skill-bar__meter::after {
+    background: linear-gradient(135deg, var(--accent), #34d399);
+}
+
+.skill-bar--weak .skill-bar__meter::after {
+    background: linear-gradient(135deg, #f97316, #facc15);
 }
 
 .timeline-item {

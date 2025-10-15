@@ -29,10 +29,25 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "0").lower() in {"1", "true", "yes"}
 
-_allowed_hosts = os.environ.get(
-    "DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0"
-)
-ALLOWED_HOSTS = [host.strip() for host in _allowed_hosts.split(",") if host.strip()]
+_allowed_hosts_env = os.environ.get("DJANGO_ALLOWED_HOSTS")
+_default_hosts = [
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+    "denisprimc.com",
+    "www.denisprimc.com",
+]
+
+if _allowed_hosts_env:
+    ALLOWED_HOSTS = [
+        host.strip() for host in _allowed_hosts_env.split(",") if host.strip()
+    ]
+else:
+    ALLOWED_HOSTS = _default_hosts.copy()
+
+for host in _default_hosts:
+    if host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(host)
 
 
 # Application definition
@@ -44,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'portfolio',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +77,7 @@ ROOT_URLCONF = 'website.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -112,7 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/London'
 
 USE_I18N = True
 
@@ -124,6 +140,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

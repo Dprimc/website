@@ -9,3 +9,4 @@ services:
     environment:
       DJANGO_SECRET_KEY: "django-insecure-placeholder"
       DJANGO_DEBUG: "1"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0,192.168.2.210,denisprimc.com,primc.co.uk"

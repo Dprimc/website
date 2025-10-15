@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Denis Primc · IT Engineer & Content Creator{% endblock %}
+
+{% block content %}
+<section class="section hero" id="about">
+    <div class="container hero__grid">
+        <div>
+            <p class="eyebrow">{{ hero.title }}</p>
+            <h1>{{ hero.name }}</h1>
+            <p class="lead">{{ hero.summary }}</p>
+            <div class="cta-group">
+                {% for link in hero.cta_links %}
+                <a class="button" href="{{ link.url }}">{{ link.label }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="hero__card">
+            <h2>{{ hero.focus_title }}</h2>
+            <ul>
+                {% for point in hero.focus_points %}
+                <li>{{ point }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="skills">
+    <div class="container">
+        <h2>Skills Snapshot</h2>
+        <div class="grid grid--three">
+            {% for group in skills %}
+            <div class="card">
+                <h3>{{ group.category }}</h3>
+                <ul>
+                    {% for item in group.items %}
+                    <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </div>
+        {% if skill_assessment %}
+        <div class="skill-bars">
+            <div class="skill-bars__header">
+                <h3>Assessment Highlights</h3>
+                <span class="skill-bars__summary">{{ skill_assessment_summary }}</span>
+            </div>
+            <ul class="skill-bars__list">
+                {% for skill in skill_assessment %}
+                <li class="skill-bar skill-bar--{{ skill.level|lower }}" style="--skill-score: {{ skill.score }}%">
+                    <div class="skill-bar__label">
+                        <span>{{ skill.name }}</span>
+                        <span class="skill-bar__stats">
+                            <span class="skill-bar__level">{{ skill.level|title }}</span>
+                            <span class="skill-bar__score">{{ skill.score }}</span>
+                        </span>
+                    </div>
+                    <div class="skill-bar__meter" aria-hidden="true"></div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="section section--alt" id="experience">
+    <div class="container">
+        <h2>Experience</h2>
+        <div class="card card--story">
+            {% for paragraph in experience.overview %}
+            <p>{{ paragraph }}</p>
+            {% endfor %}
+            {% if experience.focus %}
+            <h3>What clients rely on me for</h3>
+            <ul>
+                {% for item in experience.focus %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if experience.wins %}
+            <h3>Recent highlights</h3>
+            <ul>
+                {% for item in experience.wins %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="section" id="projects">
+    <div class="container">
+        <h2>Highlighted Projects</h2>
+        <div class="grid grid--three">
+            {% for project in projects %}
+            <div class="card">
+                <h3>{{ project.name }}</h3>
+                <p>{{ project.summary }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section section--alt" id="videos">
+    <div class="container">
+        <h2>Featured Videos</h2>
+        <div class="grid grid--three">
+            {% for video in featured_videos %}
+            <a class="card card--link" href="{{ video.url }}" target="_blank" rel="noopener noreferrer">
+                <h3>{{ video.title }}</h3>
+                <p>Watch on YouTube</p>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section" id="contact">
+    <div class="container contact">
+        <div>
+            <h2>Let’s connect</h2>
+            <p>{{ contact.cta }}</p>
+            <a class="button" href="mailto:{{ contact.email }}">Email {{ contact.email }}</a>
+        </div>
+        <div>
+            <h3>Socials</h3>
+            <ul>
+                {% for link in contact.social_links %}
+                <li><a href="{{ link.url }}" target="_blank" rel="noopener noreferrer">{{ link.label }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
