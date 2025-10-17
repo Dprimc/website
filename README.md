@@ -34,7 +34,7 @@ The homepage content lives in `portfolio/views.py`. Update the context dictionar
 
 - `hero`: headline, summary, and call-to-action buttons
 - `skills`, `experience`, `projects`: lists rendered on the page
-- `featured_videos`: replace `VIDEO_ID_*` with real YouTube video IDs
+- `featured_videos`: pulled automatically from the linked YouTube channel (falls back to a default list if the feed is unavailable)
 - `contact`: email address and social links
 
 Static styling can be tuned in `static/css/styles.css`. Add additional templates or sections by extending `templates/portfolio/home.html`.

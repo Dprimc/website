@@ -1,4 +1,148 @@
+import json
+import re
+import urllib.request
+import xml.etree.ElementTree as ET
+from functools import lru_cache
+
 from django.views.generic import TemplateView
+
+YOUTUBE_CHANNEL_ID = "UCxVnLNkd4kKK_A-ky4kt_6A"
+USER_AGENT = (
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/117.0 Safari/537.36"
+)
+
+def _thumbnail_from_id(video_id: str) -> str:
+    return f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
+
+
+DEFAULT_FEATURED_VIDEOS = [
+    {
+        "title": "3 Easy Ways to Free Up Space on C Drive Using OneDrive or Synced SharePoint",
+        "url": "https://www.youtube.com/watch?v=DeW1gAfdGOA",
+        "thumbnail": _thumbnail_from_id("DeW1gAfdGOA"),
+    },
+    {
+        "title": "How to build a Terminal Server 2022 for home lab",
+        "url": "https://www.youtube.com/watch?v=kZmeQgz3G_o",
+        "thumbnail": _thumbnail_from_id("kZmeQgz3G_o"),
+    },
+    {
+        "title": "How to build Domain Controller server 2019 for home lab",
+        "url": "https://www.youtube.com/watch?v=MrkkHZqCpJE",
+        "thumbnail": _thumbnail_from_id("MrkkHZqCpJE"),
+    },
+]
+
+
+def _fetch(url: str, timeout: int = 6) -> bytes:
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request, timeout=timeout) as response:
+        return response.read()
+
+
+@lru_cache(maxsize=1)
+def fetch_latest_videos(limit: int = 3):
+    try:
+        feed = _fetch(
+            f"https://www.youtube.com/feeds/videos.xml?channel_id={YOUTUBE_CHANNEL_ID}"
+        )
+    except Exception:
+        return [dict(item) for item in DEFAULT_FEATURED_VIDEOS[:limit]]
+
+    try:
+        root = ET.fromstring(feed)
+    except ET.ParseError:
+        return [dict(item) for item in DEFAULT_FEATURED_VIDEOS[:limit]]
+
+    ns = {
+        "atom": "http://www.w3.org/2005/Atom",
+        "yt": "http://www.youtube.com/xml/schemas/2015",
+    }
+
+    entries = []
+    for entry in root.findall("atom:entry", ns):
+        video_id = entry.findtext("yt:videoId", default="", namespaces=ns)
+        title = entry.findtext("atom:title", default="", namespaces=ns)
+        published = entry.findtext("atom:published", default="", namespaces=ns)
+        if not video_id or not title:
+            continue
+        entries.append((published, video_id, title))
+
+    entries.sort(reverse=True)
+
+    primary, backup = [], []
+    for published, video_id, title in entries[:10]:
+        video_url = f"https://www.youtube.com/watch?v={video_id}"
+
+        try:
+            raw_html = _fetch(video_url, timeout=6)
+        except Exception:
+            continue
+
+        match = re.search(
+            r"ytInitialPlayerResponse\s*=\s*(\{.*?\})\s*;",
+            raw_html.decode("utf-8", "ignore"),
+            flags=re.DOTALL,
+        )
+        if not match:
+            continue
+
+        try:
+            details = json.loads(match.group(1)).get("videoDetails", {})
+        except json.JSONDecodeError:
+            continue
+
+        if details.get("isLiveContent"):
+            continue
+
+        length = int(details.get("lengthSeconds", "0") or 0)
+        is_shorts = bool(
+            details.get("isShortsEligible") or details.get("isShortsVideo")
+        )
+
+        if is_shorts:
+            continue
+
+        thumbnails = details.get("thumbnail", {}).get("thumbnails", [])
+        thumb_url = (
+            thumbnails[-1].get("url")
+            if thumbnails
+            else _thumbnail_from_id(video_id)
+        )
+
+        record = {
+            "title": title,
+            "url": video_url,
+            "thumbnail": thumb_url,
+            "published": published,
+        }
+
+        if length >= 120:
+            primary.append(record)
+        elif length >= 60:
+            backup.append(record)
+
+        if len(primary) >= limit:
+            break
+
+    videos = primary
+    if len(videos) < limit:
+        for item in backup:
+            if item not in videos:
+                videos.append(item)
+            if len(videos) >= limit:
+                break
+
+    if not videos:
+        return [dict(item) for item in DEFAULT_FEATURED_VIDEOS[:limit]]
+
+    videos.sort(key=lambda item: item.get("published", ""), reverse=True)
+
+    for item in videos:
+        item.pop("published", None)
+
+    return videos[:limit]
 
 
 class HomeView(TemplateView):
@@ -10,146 +154,119 @@ class HomeView(TemplateView):
             {
                 "hero": {
                     "name": "Denis Primc",
-                    "title": "Senior Support Analyst · MSP Specialist · Content Creator",
+                    "title": "IT Foundations Specialist for Growing Businesses",
                     "summary": (
-                        "For 15+ years I've supported users, infrastructure, and cloud services across MSPs. "
-                        "I thrive on keeping customers productive, leading complex migrations, and sharing "
-                        "what I learn with the wider community."
+                        "I help startups and small businesses build a rock-solid IT foundation—fast, safe, and ready to scale. "
+                        "From the first domain name to hybrid-cloud infrastructure, I turn ad‑hoc tech into a strategic asset."
                     ),
-                    "focus_title": "Where I Create Impact",
+                    "focus_title": "How I Support New & Growing Teams",
                     "focus_points": [
-                        "Deliver 1st to 3rd line support with a relentless focus on service quality.",
-                        "Plan and execute client onboarding, server migrations, and security rollouts.",
-                        "Translate technical change into clear guidance for clients and teammates.",
+                        "Assess current tools and design a future-proof IT blueprint aligned to business goals.",
+                        "Deploy secure Microsoft 365, networking, and server platforms that scale without surprises.",
+                        "Coach internal stakeholders so day-to-day operations and growth plans stay in sync."
                     ],
                     "cta_links": [
-                        {"label": "View Experience", "url": "#experience"},
-                        {
-                            "label": "Watch YouTube Channel",
-                            "url": "https://www.youtube.com/@denisprimc",
-                        },
+                        {"label": "Plan Your IT Foundations", "url": "#contact"},
+                        {"label": "Explore Transformation Wins", "url": "#experience"},
                     ],
                 },
                 "skills": [
                     {
-                        "category": "MSP Platforms",
+                        "category": "Foundation Planning & Onboarding",
                         "items": [
-                            "Datto RMM, Autotask, ITGlue",
-                            "N-able N-central, Passportal, Secret Server",
-                            "Addigy RMM for Apple fleets",
-                            "Process documentation & runbooks",
+                            "Discovery workshops & IT roadmaps for new businesses",
+                            "Documentation ecosystems with ITGlue & Secret Server",
+                            "Datto RMM, N-able N-central, Autotask onboarding playbooks",
+                            "Process design for support escalation & service delivery",
                         ],
                     },
                     {
-                        "category": "Backup & Security",
+                        "category": "Cloud Workplace & Collaboration",
                         "items": [
-                            "Cove & Datto Endpoint Backup",
-                            "Cloud Ally & Rubrik backup platforms",
-                            "Mimecast, AppRiver, SentinelOne, Heimdal",
-                            "Fortinet FortiGate edge security & SD-WAN",
-                            "CyberCNS vulnerability management",
+                            "Microsoft 365 tenant build-outs with Azure AD & Intune",
+                            "SharePoint, Teams, and OneDrive information architecture",
+                            "Hybrid identity & conditional access policy design",
+                            "Apple & Windows fleet management via Addigy and Intune",
                         ],
                     },
                     {
-                        "category": "Platforms & Infrastructure",
+                        "category": "Infrastructure & Continuity",
                         "items": [
-                            "Azure AD, Intune, SharePoint, Exchange Online",
-                            "Windows Server 2016/2019/2022 & Hyper-V",
-                            "VMware, VirtualBox, Synology NAS/CCTV",
-                            "Networking with Meraki, Meraki Go, UniFi",
+                            "Windows Server 2016/2019/2022 & Hyper-V Clusters",
+                            "Cluster-Aware Updating (CAU) & WSUS patch programs",
+                            "VMware migrations, Synology storage, and resilient networking",
+                            "Cove, Cloud Ally, Rubrik, and Datto backup strategies",
                         ],
                     },
                     {
-                        "category": "Troubleshooting & Tools",
+                        "category": "Security & Operations",
                         "items": [
-                            "Advanced endpoint support across Windows, macOS, Linux",
-                            "Domain management (MX, SPF, DKIM, TXT)",
-                            "PowerShell & Bash scripting automation",
-                            "Ivanti & remote workforce enablement playbooks",
+                            "Mimecast, AppRiver, SentinelOne, Heimdal shielding",
+                            "Fortinet FortiGate edge security & SD-WAN deployments",
+                            "Domain management (MX, SPF, DKIM, TXT) & email hardening",
+                            "PowerShell & Bash automation plus Ivanti service runbooks",
                         ],
                     },
                 ],
                 "experience": {
                     "overview": [
                         (
-                            "I’m a hands-on support analyst with more than fifteen years in IT and the last six immersed "
-                            "in fast-paced MSP environments. From service desk triage to deep-dive root cause analysis, "
-                            "I keep users productive while protecting uptime across mixed Windows, macOS, and Linux estates."
+                            "I’ve spent over fifteen years guiding organisations through rapid change, and the last six inside "
+                            "managed service providers where small-business growth lives or dies by its IT decisions."
                         ),
                         (
-                            "Day to day I own the full support lifecycle—onboarding new organisations, documenting their "
-                            "infrastructure, deploying RMM tooling, and guiding them through migrations to modern platforms. "
-                            "Server upgrades, Azure AD hardening, Intune rollout, and collaboration stack tuning are all part "
-                            "of the toolkit."
+                            "My speciality is taking a patchwork of accounts, devices, and ad-hoc fixes and turning them into a "
+                            "documented, secure, and scalable foundation. I partner with founders and operations leaders to map out "
+                            "everything from identity to networking so expansion plans aren’t blocked by technology."
                         ),
                         (
-                            "Earlier in my career I led a datacentre relocation and domain migration for hundreds of users. "
-                            "That experience cemented my focus on communication, change control, and making complex transitions "
-                            "feel simple for the people relying on them."
+                            "I bring the same rigour I used relocating datacentres and migrating hundreds of users to every new engagement—"
+                            "clear communication, change control, and training so teams feel confident adopting new systems."
                         ),
                     ],
                     "focus": [
-                        "Delivering multi-tier support that blends speed with thorough root-cause resolutions.",
-                        "Designing and executing migration runbooks for servers, email, and collaboration platforms.",
-                        "Hardening tenant security with conditional access, backup policies, and endpoint protection.",
-                        "Coaching junior technicians and translating technical change into plain-language updates.",
+                        "Designing foundation blueprints covering connectivity, identity, collaboration, and security.",
+                        "Executing phased migrations—from legacy servers to cloud-first platforms—without disrupting operations.",
+                        "Embedding backup, monitoring, and patch routines that protect the business from the start.",
+                        "Coaching internal teams so they can own day-to-day operations with confidence.",
                     ],
                     "wins": [
-                        "Standardised client onboarding to cut time-to-value for new MSP customers.",
-                        "Migrated legacy VMware workloads into resilient Hyper-V clusters with minimal downtime.",
-                        "Rolled out O365 security baselines, SharePoint rearchitecture, and SaaS backup coverage.",
-                        "Maintained 3rd-line escalation ownership for complex networking, identity, and endpoint issues.",
+                        "Standardised MSP onboarding kits that took new businesses from chaos to full documentation in weeks.",
+                        "Migrated ageing VMware footprints into Hyper-V clusters with CAU and WSUS-managed patching.",
+                        "Rolled out Microsoft 365 security baselines, SharePoint intranets, and SaaS backup coverage for hybrid teams.",
+                        "Built runbooks and training that empowered internal staff to support growth post-engagement.",
                     ],
                 },
                 "projects": [
                     {
-                        "name": "Client Onboarding Accelerator",
+                        "name": "IT Foundations Jumpstart",
                         "summary": (
-                            "Designed repeatable onboarding playbooks covering discovery, documentation, "
-                            "and RMM deployment to bring new MSP clients online smoothly."
+                            "A four-week roadmap that audits your current stack, maps business goals, and delivers a phased build-out "
+                            "plan for identity, devices, and collaboration."
                         ),
                     },
                     {
-                        "name": "Hybrid Infrastructure Migrations",
+                        "name": "Modern Workplace Rollouts",
                         "summary": (
-                            "Delivered VMware-to-Hyper-V transitions, Exchange 2016 to Microsoft 365 migrations, "
-                            "and Azure AD security implementations with minimal downtime."
+                            "End-to-end Microsoft 365, Intune, and SharePoint deployments with governance, security baselines, "
+                            "and user enablement tailored for growing teams."
                         ),
                     },
                     {
-                        "name": "Remote Workforce Enablement",
+                        "name": "Resilience & Continuity Programs",
                         "summary": (
-                            "Implemented remote desktop services, VPN access, and collaboration tooling "
-                            "to keep hybrid teams productive and secure."
+                            "Hyper-V clustering, backup, and Fortinet-secured networking engineered to keep critical services online "
+                            "and recoverable as your business scales."
                         ),
                     },
                 ],
-                "skill_assessment_summary": "IKM TechChek score: 83 · 78th percentile overall.",
-                "skill_assessment": [
-                    {"name": "Devices & Printers", "score": 90, "level": "strong"},
-                    {"name": "Office 365 Continuity & Availability", "score": 88, "level": "strong"},
-                    {"name": "Windows 10 Security", "score": 86, "level": "strong"},
-                    {"name": "Wireless Networking", "score": 84, "level": "strong"},
-                    {"name": "File Systems & Management", "score": 82, "level": "strong"},
-                    {"name": "Email Concepts & Client Support", "score": 80, "level": "strong"},
-                ],
-                "featured_videos": [
-                    {
-                        "title": "Azure AD Conditional Access Explained",
-                        "url": "https://www.youtube.com/watch?v=wxXu5NXdUzw",
-                    },
-                    {
-                        "title": "Datto RMM Tips for MSP Engineers",
-                        "url": "https://www.youtube.com/watch?v=bURtVxifUUo",
-                    },
-                    {
-                        "title": "Deploying Intune Endpoint Security Policies",
-                        "url": "https://www.youtube.com/watch?v=urBEXzYkD7A",
-                    },
-                ],
+                "featured_videos": fetch_latest_videos(),
                 "contact": {
                     "email": "denis@denisprimc.com",
-                    "cta": "Need help with MSP tooling, migrations, or endpoint strategy? Let’s talk.",
+                    "cta": (
+                        "Ready to lay the right IT foundations for your business? "
+                        "Reach out for a discovery call and I’ll map the next steps with you."
+                    ),
                     "social_links": [
                         {
                             "label": "LinkedIn",

@@ -229,99 +229,48 @@ h2 {
     text-decoration: none;
 }
 
-.skill-bars {
-    margin-top: 3rem;
-}
-
-.skill-bars__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.25rem;
-}
-
-.skill-bars__summary {
-    color: var(--muted);
-    font-size: 0.95rem;
-}
-
-.skill-bars__list {
-    list-style: none;
+.card--video {
     padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 0.85rem;
-}
-
-.skill-bar {
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
+    height: 100%;
 }
 
-.skill-bar__label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.95rem;
-    color: var(--muted);
-}
-
-.skill-bar__stats {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.skill-bar__level {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0.15rem 0.45rem;
-    border-radius: 0.5rem;
-    background: rgba(56, 189, 248, 0.12);
-    color: var(--accent);
-}
-
-.skill-bar--strong .skill-bar__level {
-    background: rgba(52, 211, 153, 0.15);
-    color: #34d399;
-}
-
-.skill-bar--weak .skill-bar__level {
-    background: rgba(249, 115, 22, 0.15);
-    color: #fb923c;
-}
-
-.skill-bar__score {
-    font-variant-numeric: tabular-nums;
-}
-
-.skill-bar__meter {
+.card--video .card__media {
     position: relative;
-    height: 0.55rem;
-    border-radius: 999px;
-    background: rgba(56, 189, 248, 0.1);
+    width: 100%;
+    background: rgba(15, 23, 42, 0.6);
     overflow: hidden;
 }
 
-.skill-bar__meter::after {
+.card--video .card__media::before {
     content: "";
+    display: block;
+    padding-top: 56.25%; /* 16:9 ratio */
+}
+
+.card--video img {
     position: absolute;
-    inset: 0 auto 0 0;
-    width: var(--skill-score);
-    background: var(--accent);
-    border-radius: inherit;
-    transition: width 0.3s ease;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
 }
 
-.skill-bar--strong .skill-bar__meter::after {
-    background: linear-gradient(135deg, var(--accent), #34d399);
+.card--video .card__body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex-grow: 1;
 }
 
-.skill-bar--weak .skill-bar__meter::after {
-    background: linear-gradient(135deg, #f97316, #facc15);
+.card--video:hover img,
+.card--video:focus-within img {
+    transform: scale(1.05);
 }
 
 .timeline-item {

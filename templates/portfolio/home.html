@@ -41,28 +41,6 @@
             </div>
             {% endfor %}
         </div>
-        {% if skill_assessment %}
-        <div class="skill-bars">
-            <div class="skill-bars__header">
-                <h3>Assessment Highlights</h3>
-                <span class="skill-bars__summary">{{ skill_assessment_summary }}</span>
-            </div>
-            <ul class="skill-bars__list">
-                {% for skill in skill_assessment %}
-                <li class="skill-bar skill-bar--{{ skill.level|lower }}" style="--skill-score: {{ skill.score }}%">
-                    <div class="skill-bar__label">
-                        <span>{{ skill.name }}</span>
-                        <span class="skill-bar__stats">
-                            <span class="skill-bar__level">{{ skill.level|title }}</span>
-                            <span class="skill-bar__score">{{ skill.score }}</span>
-                        </span>
-                    </div>
-                    <div class="skill-bar__meter" aria-hidden="true"></div>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
     </div>
 </section>
 
@@ -112,9 +90,14 @@
         <h2>Featured Videos</h2>
         <div class="grid grid--three">
             {% for video in featured_videos %}
-            <a class="card card--link" href="{{ video.url }}" target="_blank" rel="noopener noreferrer">
-                <h3>{{ video.title }}</h3>
-                <p>Watch on YouTube</p>
+            <a class="card card--link card--video" href="{{ video.url }}" target="_blank" rel="noopener noreferrer">
+                <div class="card__media">
+                    <img src="{{ video.thumbnail }}" alt="{{ video.title }} thumbnail" loading="lazy">
+                </div>
+                <div class="card__body">
+                    <h3>{{ video.title }}</h3>
+                    <p>Watch on YouTube</p>
+                </div>
             </a>
             {% endfor %}
         </div>
