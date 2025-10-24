@@ -4,6 +4,8 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from functools import lru_cache
 
+from django.conf import settings
+from django.core.cache import cache
 from django.views.generic import TemplateView
 
 YOUTUBE_CHANNEL_ID = "UCxVnLNkd4kKK_A-ky4kt_6A"
@@ -35,8 +37,11 @@ DEFAULT_FEATURED_VIDEOS = [
 ]
 
 
-def _fetch(url: str, timeout: int = 6) -> bytes:
-    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+def _fetch(url: str, timeout: int = 6, headers=None) -> bytes:
+    request_headers = {"User-Agent": USER_AGENT}
+    if headers:
+        request_headers.update(headers)
+    request = urllib.request.Request(url, headers=request_headers)
     with urllib.request.urlopen(request, timeout=timeout) as response:
         return response.read()
 
@@ -145,6 +150,87 @@ def fetch_latest_videos(limit: int = 3):
     return videos[:limit]
 
 
+GITHUB_USERNAME = "Dprimc"
+GITHUB_PROJECT_CACHE_KEY = "portfolio.github_projects"
+GITHUB_CACHE_TIMEOUT = getattr(settings, "PORTFOLIO_GITHUB_CACHE_TIMEOUT", 60 * 60 * 24)
+
+
+def _load_github_projects(limit: int) -> list[dict]:
+    page_size = max(limit * 2, limit)
+    try:
+        payload = _fetch(
+            (
+                "https://api.github.com/users/"
+                f"{GITHUB_USERNAME}/repos?sort=updated&per_page={page_size}"
+            ),
+            timeout=6,
+            headers={"Accept": "application/vnd.github+json"},
+        )
+    except Exception:
+        return []
+
+    try:
+        decoded = payload.decode("utf-8")
+    except UnicodeDecodeError:
+        return []
+
+    try:
+        repos = json.loads(decoded)
+    except json.JSONDecodeError:
+        return []
+
+    if isinstance(repos, dict):
+        return []
+
+    projects = []
+    for repo in repos:
+        if repo.get("private") or repo.get("fork") or repo.get("archived"):
+            continue
+
+        project = {
+            "name": repo.get("name") or "",
+            "description": repo.get("description")
+            or "No description provided yet.",
+            "url": repo.get("html_url") or "",
+            "language": repo.get("language") or "",
+            "stars": int(repo.get("stargazers_count") or 0),
+            "topics": repo.get("topics") or [],
+            "updated": repo.get("pushed_at") or repo.get("updated_at") or "",
+        }
+
+        if not project["name"] or not project["url"]:
+            continue
+
+        projects.append(project)
+
+        if len(projects) >= limit:
+            break
+
+    return projects
+
+
+def fetch_github_projects(limit: int = 6, *, force_refresh: bool = False):
+    if limit <= 0:
+        return []
+
+    cache_key = f"{GITHUB_PROJECT_CACHE_KEY}:{limit}"
+    cached_projects = cache.get(cache_key)
+    if cached_projects is not None and not force_refresh:
+        return cached_projects
+
+    projects = _load_github_projects(limit)
+
+    if projects:
+        cache.set(cache_key, projects, timeout=GITHUB_CACHE_TIMEOUT)
+        return projects
+
+    if cached_projects is not None:
+        return cached_projects
+
+    cache.delete(cache_key)
+    return []
+
+
 class HomeView(TemplateView):
     template_name = "portfolio/home.html"
 
@@ -172,21 +258,12 @@ class HomeView(TemplateView):
                 },
                 "skills": [
                     {
-                        "category": "Foundation Planning & Onboarding",
-                        "items": [
-                            "Discovery workshops & IT roadmaps for new businesses",
-                            "Documentation ecosystems with ITGlue & Secret Server",
-                            "Datto RMM, N-able N-central, Autotask onboarding playbooks",
-                            "Process design for support escalation & service delivery",
-                        ],
-                    },
-                    {
                         "category": "Cloud Workplace & Collaboration",
                         "items": [
                             "Microsoft 365 tenant build-outs with Azure AD & Intune",
                             "SharePoint, Teams, and OneDrive information architecture",
                             "Hybrid identity & conditional access policy design",
-                            "Apple & Windows fleet management via Addigy and Intune",
+                            "Cross-Platform Systems Expertise (Microsoft, Apple & Linux)",
                         ],
                     },
                     {
@@ -194,17 +271,17 @@ class HomeView(TemplateView):
                         "items": [
                             "Windows Server 2016/2019/2022 & Hyper-V Clusters",
                             "Cluster-Aware Updating (CAU) & WSUS patch programs",
-                            "VMware migrations, Synology storage, and resilient networking",
-                            "Cove, Cloud Ally, Rubrik, and Datto backup strategies",
+                            "Resilient network architecture and performance optimisation",
+                            "Business continuity and disaster recovery planning with tested runbooks",
                         ],
                     },
                     {
                         "category": "Security & Operations",
                         "items": [
-                            "Mimecast, AppRiver, SentinelOne, Heimdal shielding",
-                            "Fortinet FortiGate edge security & SD-WAN deployments",
-                            "Domain management (MX, SPF, DKIM, TXT) & email hardening",
-                            "PowerShell & Bash automation plus Ivanti service runbooks",
+                            "Managed email security platforms with phishing defense & threat analytics",
+                            "Edge security architectures with SD-WAN and zero-trust segmentation",
+                            "Identity governance and privileged access controls",
+                            "PowerShell and Bash automation supporting ITSM runbooks",
                         ],
                     },
                 ],
@@ -261,6 +338,7 @@ class HomeView(TemplateView):
                     },
                 ],
                 "featured_videos": fetch_latest_videos(),
+                "github_projects": fetch_github_projects(),
                 "contact": {
                     "email": "denis@denisprimc.com",
                     "cta": (

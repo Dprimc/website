@@ -82,6 +82,36 @@
             </div>
             {% endfor %}
         </div>
+        <div class="projects__github">
+            <h3>Latest GitHub Builds</h3>
+            {% if github_projects %}
+            <div class="grid grid--three">
+                {% for repo in github_projects %}
+                <a class="card card--link card--repo" href="{{ repo.url }}" target="_blank" rel="noopener noreferrer">
+                    <h3>{{ repo.name }}</h3>
+                    <p>{{ repo.description }}</p>
+                    <div class="repo-meta">
+                        {% if repo.language %}
+                        <span class="repo-meta__item">{{ repo.language }}</span>
+                        {% endif %}
+                        {% if repo.stars %}
+                        <span class="repo-meta__item" aria-label="{{ repo.stars }} stars on GitHub">★ {{ repo.stars }}</span>
+                        {% endif %}
+                    </div>
+                    {% if repo.topics %}
+                    <ul class="repo-topics">
+                        {% for topic in repo.topics %}
+                        <li>{{ topic }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="projects__github-empty">Live GitHub projects will appear here once we can reach the GitHub API.</p>
+            {% endif %}
+        </div>
     </div>
 </section>
 

@@ -46,6 +46,23 @@ Set these in `docker-compose.yml` or your host shell before `docker-compose up`:
 - `DJANGO_SECRET_KEY`: Django secret (defaults to a dev value)
 - `DJANGO_DEBUG`: `1` for debug (default), `0` for production mode
 - `DJANGO_ALLOWED_HOSTS`: Comma-separated list of domains (e.g. `denisprimc.com,primc.co.uk`)
+- `PORTFOLIO_GITHUB_CACHE_TIMEOUT`: Cache duration (seconds) for public GitHub projects shown on the homepage (default `86400`, i.e. 24 hours)
+
+## Keeping GitHub projects fresh
+
+The GitHub section is cached to avoid rate limits. Update it manually or via cron with:
+
+```bash
+python manage.py refresh_github_projects --limit 6
+```
+
+With Docker Compose, wrap the command:
+
+```bash
+sudo docker compose run --rm web python manage.py refresh_github_projects --limit 6
+```
+
+Schedule the management command daily or weekly (for example via `cron`) to keep the cache current without restarting the app.
 
 ## Next steps
 
