@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Denis Primc · IT Engineer & Content Creator{% endblock %}
+{% block title %}Denis Primc · YouTube Tech Creator{% endblock %}
 
 {% block content %}
 <section class="section hero" id="about">
@@ -26,92 +26,36 @@
     </div>
 </section>
 
-<section class="section" id="skills">
+<section class="section" id="resources">
     <div class="container">
-        <h2>Skills Snapshot</h2>
+        <h2>Tools & GitHub Resources</h2>
+        {% if github_projects %}
         <div class="grid grid--three">
-            {% for group in skills %}
-            <div class="card">
-                <h3>{{ group.category }}</h3>
-                <ul>
-                    {% for item in group.items %}
-                    <li>{{ item }}</li>
+            {% for repo in github_projects %}
+            <a class="card card--link card--repo" href="{{ repo.url }}" target="_blank" rel="noopener noreferrer">
+                <h3>{{ repo.name }}</h3>
+                <p>{{ repo.description }}</p>
+                <div class="repo-meta">
+                    {% if repo.language %}
+                    <span class="repo-meta__item">{{ repo.language }}</span>
+                    {% endif %}
+                    {% if repo.stars %}
+                    <span class="repo-meta__item" aria-label="{{ repo.stars }} stars on GitHub">★ {{ repo.stars }}</span>
+                    {% endif %}
+                </div>
+                {% if repo.topics %}
+                <ul class="repo-topics">
+                    {% for topic in repo.topics %}
+                    <li>{{ topic }}</li>
                     {% endfor %}
                 </ul>
-            </div>
+                {% endif %}
+            </a>
             {% endfor %}
         </div>
-    </div>
-</section>
-
-<section class="section section--alt" id="experience">
-    <div class="container">
-        <h2>Experience</h2>
-        <div class="card card--story">
-            {% for paragraph in experience.overview %}
-            <p>{{ paragraph }}</p>
-            {% endfor %}
-            {% if experience.focus %}
-            <h3>What clients rely on me for</h3>
-            <ul>
-                {% for item in experience.focus %}
-                <li>{{ item }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-            {% if experience.wins %}
-            <h3>Recent highlights</h3>
-            <ul>
-                {% for item in experience.wins %}
-                <li>{{ item }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
-        </div>
-    </div>
-</section>
-
-<section class="section" id="projects">
-    <div class="container">
-        <h2>Highlighted Projects</h2>
-        <div class="grid grid--three">
-            {% for project in projects %}
-            <div class="card">
-                <h3>{{ project.name }}</h3>
-                <p>{{ project.summary }}</p>
-            </div>
-            {% endfor %}
-        </div>
-        <div class="projects__github">
-            <h3>Latest GitHub Builds</h3>
-            {% if github_projects %}
-            <div class="grid grid--three">
-                {% for repo in github_projects %}
-                <a class="card card--link card--repo" href="{{ repo.url }}" target="_blank" rel="noopener noreferrer">
-                    <h3>{{ repo.name }}</h3>
-                    <p>{{ repo.description }}</p>
-                    <div class="repo-meta">
-                        {% if repo.language %}
-                        <span class="repo-meta__item">{{ repo.language }}</span>
-                        {% endif %}
-                        {% if repo.stars %}
-                        <span class="repo-meta__item" aria-label="{{ repo.stars }} stars on GitHub">★ {{ repo.stars }}</span>
-                        {% endif %}
-                    </div>
-                    {% if repo.topics %}
-                    <ul class="repo-topics">
-                        {% for topic in repo.topics %}
-                        <li>{{ topic }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                </a>
-                {% endfor %}
-            </div>
-            {% else %}
-            <p class="projects__github-empty">Live GitHub projects will appear here once we can reach the GitHub API.</p>
-            {% endif %}
-        </div>
+        {% else %}
+        <p class="projects__github-empty">Live GitHub projects will appear here once we can reach the GitHub API.</p>
+        {% endif %}
     </div>
 </section>
 
@@ -137,7 +81,7 @@
 <section class="section" id="contact">
     <div class="container contact">
         <div>
-            <h2>Let’s connect</h2>
+            <h2>Collaborate or Sponsor</h2>
             <p>{{ contact.cta }}</p>
             <a class="button" href="mailto:{{ contact.email }}">Email {{ contact.email }}</a>
         </div>

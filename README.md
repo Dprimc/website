@@ -1,6 +1,6 @@
 # Website Django Project
 
-A Dockerised Django application powering the denisprimc.com / primc.co.uk personal site. It ships with a portfolio homepage that highlights experience as an IT engineer and YouTube content creator.
+A Dockerised Django application powering the denisprimc.com / primc.co.uk personal site. It now puts the YouTube channel front and centre with supporting resources and collaboration info.
 
 ## Prerequisites
 

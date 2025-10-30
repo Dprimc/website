@@ -240,112 +240,37 @@ class HomeView(TemplateView):
             {
                 "hero": {
                     "name": "Denis Primc",
-                    "title": "IT Foundations Specialist for Growing Businesses",
+                    "title": "YouTube Creator · Homelab & Modern Workplace",
                     "summary": (
-                        "I help startups and small businesses build a rock-solid IT foundation—fast, safe, and ready to scale. "
-                        "From the first domain name to hybrid-cloud infrastructure, I turn ad‑hoc tech into a strategic asset."
+                        "I capture every homelab upgrade, remote-work rollout, and troubleshooting session so you can follow along step by step. "
+                        "Expect practical builds, honest lessons, and downloadable resources you can put to work straight away."
                     ),
-                    "focus_title": "How I Support New & Growing Teams",
+                    "focus_title": "What You’ll Find on the Channel",
                     "focus_points": [
-                        "Assess current tools and design a future-proof IT blueprint aligned to business goals.",
-                        "Deploy secure Microsoft 365, networking, and server platforms that scale without surprises.",
-                        "Coach internal stakeholders so day-to-day operations and growth plans stay in sync."
+                        "Step-by-step homelab builds using approachable hardware and cloud services.",
+                        "Modern workplace configurations across Microsoft 365, Intune, and hybrid identity.",
+                        "Automation runbooks, scripts, and troubleshooting playbooks you can reuse instantly.",
                     ],
                     "cta_links": [
-                        {"label": "Plan Your IT Foundations", "url": "#contact"},
-                        {"label": "Explore Transformation Wins", "url": "#experience"},
+                        {"label": "Watch the Latest Uploads", "url": "#videos"},
+                        {
+                            "label": "Subscribe on YouTube",
+                            "url": "https://www.youtube.com/@denisprimc?sub_confirmation=1",
+                        },
                     ],
                 },
-                "skills": [
-                    {
-                        "category": "Cloud Workplace & Collaboration",
-                        "items": [
-                            "Microsoft 365 tenant build-outs with Azure AD & Intune",
-                            "SharePoint, Teams, and OneDrive information architecture",
-                            "Hybrid identity & conditional access policy design",
-                            "Cross-Platform Systems Expertise (Microsoft, Apple & Linux)",
-                        ],
-                    },
-                    {
-                        "category": "Infrastructure & Continuity",
-                        "items": [
-                            "Windows Server 2016/2019/2022 & Hyper-V Clusters",
-                            "Cluster-Aware Updating (CAU) & WSUS patch programs",
-                            "Resilient network architecture and performance optimisation",
-                            "Business continuity and disaster recovery planning with tested runbooks",
-                        ],
-                    },
-                    {
-                        "category": "Security & Operations",
-                        "items": [
-                            "Managed email security platforms with phishing defense & threat analytics",
-                            "Edge security architectures with SD-WAN and zero-trust segmentation",
-                            "Identity governance and privileged access controls",
-                            "PowerShell and Bash automation supporting ITSM runbooks",
-                        ],
-                    },
-                ],
-                "experience": {
-                    "overview": [
-                        (
-                            "I’ve spent over fifteen years guiding organisations through rapid change, and the last six inside "
-                            "managed service providers where small-business growth lives or dies by its IT decisions."
-                        ),
-                        (
-                            "My speciality is taking a patchwork of accounts, devices, and ad-hoc fixes and turning them into a "
-                            "documented, secure, and scalable foundation. I partner with founders and operations leaders to map out "
-                            "everything from identity to networking so expansion plans aren’t blocked by technology."
-                        ),
-                        (
-                            "I bring the same rigour I used relocating datacentres and migrating hundreds of users to every new engagement—"
-                            "clear communication, change control, and training so teams feel confident adopting new systems."
-                        ),
-                    ],
-                    "focus": [
-                        "Designing foundation blueprints covering connectivity, identity, collaboration, and security.",
-                        "Executing phased migrations—from legacy servers to cloud-first platforms—without disrupting operations.",
-                        "Embedding backup, monitoring, and patch routines that protect the business from the start.",
-                        "Coaching internal teams so they can own day-to-day operations with confidence.",
-                    ],
-                    "wins": [
-                        "Standardised MSP onboarding kits that took new businesses from chaos to full documentation in weeks.",
-                        "Migrated ageing VMware footprints into Hyper-V clusters with CAU and WSUS-managed patching.",
-                        "Rolled out Microsoft 365 security baselines, SharePoint intranets, and SaaS backup coverage for hybrid teams.",
-                        "Built runbooks and training that empowered internal staff to support growth post-engagement.",
-                    ],
-                },
-                "projects": [
-                    {
-                        "name": "IT Foundations Jumpstart",
-                        "summary": (
-                            "A four-week roadmap that audits your current stack, maps business goals, and delivers a phased build-out "
-                            "plan for identity, devices, and collaboration."
-                        ),
-                    },
-                    {
-                        "name": "Modern Workplace Rollouts",
-                        "summary": (
-                            "End-to-end Microsoft 365, Intune, and SharePoint deployments with governance, security baselines, "
-                            "and user enablement tailored for growing teams."
-                        ),
-                    },
-                    {
-                        "name": "Resilience & Continuity Programs",
-                        "summary": (
-                            "Hyper-V clustering, backup, and Fortinet-secured networking engineered to keep critical services online "
-                            "and recoverable as your business scales."
-                        ),
-                    },
-                ],
                 "featured_videos": fetch_latest_videos(),
                 "github_projects": fetch_github_projects(),
                 "contact": {
                     "email": "denis@denisprimc.com",
                     "cta": (
-                        "Ready to lay the right IT foundations for your business? "
-                        "Reach out for a discovery call and I’ll map the next steps with you."
+                        "Want to collaborate, sponsor a build, or request a topic for the channel? Drop me a note and let’s plan it."
                     ),
                     "social_links": [
+                        {
+                            "label": "YouTube",
+                            "url": "https://www.youtube.com/@denisprimc",
+                        },
                         {
                             "label": "LinkedIn",
                             "url": "https://www.linkedin.com/in/denisprimc",
@@ -353,10 +278,6 @@ class HomeView(TemplateView):
                         {
                             "label": "GitHub",
                             "url": "https://github.com/Dprimc",
-                        },
-                        {
-                            "label": "YouTube",
-                            "url": "https://www.youtube.com/@denisprimc",
                         },
                     ],
                 },
