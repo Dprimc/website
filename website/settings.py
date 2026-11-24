@@ -31,22 +31,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-2ndm38rvanpigq0%q7i2s9t6dkt#kg$+p@awi@-7-v6a#3tgnc",
-)
+SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DJANGO_DEBUG", "0").lower() in {"1", "true", "yes"}
 
 _allowed_hosts_env = os.environ.get("DJANGO_ALLOWED_HOSTS")
-_default_hosts = [
-    "localhost",
-    "127.0.0.1",
-    "0.0.0.0",
-    "denisprimc.com",
-    "www.denisprimc.com",
-]
+_default_hosts = ["denisprimc.com", "www.denisprimc.com"]
 
 if _allowed_hosts_env:
     ALLOWED_HOSTS = [
@@ -55,9 +46,25 @@ if _allowed_hosts_env:
 else:
     ALLOWED_HOSTS = _default_hosts.copy()
 
-for host in _default_hosts:
-    if host not in ALLOWED_HOSTS:
-        ALLOWED_HOSTS.append(host)
+
+_csrf_trusted_origins_env = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS")
+_default_csrf_trusted_origins = [
+    "https://denisprimc.com",
+    "https://www.denisprimc.com",
+]
+
+if _csrf_trusted_origins_env:
+    CSRF_TRUSTED_ORIGINS = [
+        origin.strip()
+        for origin in _csrf_trusted_origins_env.split(",")
+        if origin.strip()
+    ]
+else:
+    CSRF_TRUSTED_ORIGINS = _default_csrf_trusted_origins.copy()
+
+for origin in _default_csrf_trusted_origins:
+    if origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(origin)
 
 
 # Application definition
@@ -106,10 +113,12 @@ WSGI_APPLICATION = 'website.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+DATABASE_PATH = Path(os.environ.get("DJANGO_DATABASE_PATH", str(BASE_DIR / "db.sqlite3")))
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": DATABASE_PATH,
     }
 }
 
@@ -156,6 +165,19 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Security settings for the Caddy reverse proxy and production deployment.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = os.environ.get("DJANGO_SECURE_SSL_REDIRECT", "0").lower() in {
+    "1", "true", "yes"
+}
+SECURE_HSTS_SECONDS = _env_int("DJANGO_SECURE_HSTS_SECONDS", 0)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 
 # Portfolio-specific settings

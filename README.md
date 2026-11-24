@@ -45,7 +45,8 @@ Set these in `docker-compose.yml` or your host shell before `docker-compose up`:
 
 - `DJANGO_SECRET_KEY`: Django secret (defaults to a dev value)
 - `DJANGO_DEBUG`: `1` for debug (default), `0` for production mode
-- `DJANGO_ALLOWED_HOSTS`: Comma-separated list of domains (e.g. `denisprimc.com,primc.co.uk`)
+- `DJANGO_ALLOWED_HOSTS`: Comma-separated list of domains (e.g. `denisprimc.com,www.denisprimc.com,primc.co.uk`)
+- `DJANGO_CSRF_TRUSTED_ORIGINS`: Comma-separated HTTPS origins for proxied/admin/form requests (e.g. `https://denisprimc.com,https://www.denisprimc.com`)
 - `PORTFOLIO_GITHUB_CACHE_TIMEOUT`: Cache duration (seconds) for public GitHub projects shown on the homepage (default `86400`, i.e. 24 hours)
 
 ## Keeping GitHub projects fresh

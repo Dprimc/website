@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block page_title %}Blog | Denis Primc{% endblock %}
+{% block meta_description %}Blog posts from Denis Primc about IT projects, homelab work, upgrades, troubleshooting, and practical technical opinions.{% endblock %}
+{% block og_title %}Denis Primc · Blog{% endblock %}
+{% block og_description %}Practical IT guides covering small-business technology, homelabs, upgrades, troubleshooting, and automation.{% endblock %}
+{% block twitter_title %}Denis Primc · Blog{% endblock %}
+{% block twitter_description %}Practical IT guides covering small-business technology, homelabs, upgrades, troubleshooting, and automation.{% endblock %}
+{% block canonical_url %}https://denisprimc.com/blog/{% endblock %}
+
+{% block content %}
+<section class="section blog-hero">
+    <div class="container">
+        <p class="eyebrow">Blog</p>
+        <h1>Blog</h1>
+        <p class="lead">Practical IT articles, guides, troubleshooting, and small-business technology advice.</p>
+    </div>
+</section>
+
+<section class="section section--alt">
+    <div class="container">
+        {% if posts %}
+        <div class="blog-list">
+            {% for post in posts %}
+            <article class="card blog-card">
+                <div class="blog-card__meta">
+                    {% if post.category %}<span>{{ post.category }}</span>{% endif %}
+                    <time datetime="{{ post.published_at|date:'c' }}">{{ post.published_at|date:"j M Y" }}</time>
+                </div>
+                <h2><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h2>
+                {% if post.summary %}<p>{{ post.summary }}</p>{% endif %}
+                <a class="text-link" href="{{ post.get_absolute_url }}">Read post</a>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card blog-empty">
+            <h2>Blog is ready</h2>
+            <p>No posts are published yet. The first project write-up or IT note can be added when ready.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

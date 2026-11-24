@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block page_title %}{{ post.title }} | Denis Primc Blog{% endblock %}
+{% block meta_description %}{{ post.summary|default:post.title }}{% endblock %}
+{% block og_title %}{{ post.title }} | Denis Primc Blog{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_description %}{{ post.summary|default:post.title }}{% endblock %}
+{% block twitter_title %}{{ post.title }} | Denis Primc Blog{% endblock %}
+{% block twitter_description %}{{ post.summary|default:post.title }}{% endblock %}
+{% block canonical_url %}https://denisprimc.com{{ post.get_absolute_url }}{% endblock %}
+{% block structured_data %}
+<meta property="article:published_time" content="{{ post.published_at|date:'c' }}">
+<meta property="article:modified_time" content="{{ post.updated_at|date:'c' }}">
+{% if post.category %}<meta property="article:section" content="{{ post.category }}">{% endif %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "{{ post.title|escapejs }}",
+  "description": "{{ post.summary|default:post.title|escapejs }}",
+  "datePublished": "{{ post.published_at|date:'c' }}",
+  "dateModified": "{{ post.updated_at|date:'c' }}",
+  "mainEntityOfPage": "https://denisprimc.com{{ post.get_absolute_url }}",
+  "author": {
+    "@type": "Person",
+    "name": "Denis Primc",
+    "url": "https://denisprimc.com/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Denis Primc",
+    "url": "https://denisprimc.com/"
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<article class="section blog-post">
+    <div class="container blog-post__container">
+        <p class="eyebrow">{% if post.category %}{{ post.category }}{% else %}Blog{% endif %}</p>
+        <h1>{{ post.title }}</h1>
+        <p class="blog-post__date"><time datetime="{{ post.published_at|date:'c' }}">{{ post.published_at|date:"j M Y" }}</time></p>
+        {% if post.summary %}<p class="lead">{{ post.summary }}</p>{% endif %}
+        <div class="blog-post__body">
+            {{ post.body|urlize|linebreaks }}
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.blog-post__body p').forEach(function (paragraph) {
+                    var text = paragraph.textContent.trim();
+                    var isStandaloneParagraph = !paragraph.querySelector('br');
+                    var isCheckTitle = /^\d+\.\s+/.test(text) && isStandaloneParagraph && text.length < 95;
+                    var isClosingTitle = text === 'Start small and improve one area at a time' || text === 'Start simple, but start correctly';
+                    if (isCheckTitle || isClosingTitle) {
+                        paragraph.classList.add('blog-post__section-title');
+                    }
+                });
+                document.querySelectorAll('.blog-post__body a[href]').forEach(function (link) {
+                    link.setAttribute('target', '_blank');
+                    link.setAttribute('rel', 'noopener noreferrer');
+                });
+            });
+        </script>
+        <p class="blog-post__back"><a class="text-link" href="{% url 'portfolio:blog_list' %}">← Back to blog</a></p>
+    </div>
+</article>
+{% endblock %}

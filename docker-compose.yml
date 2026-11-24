@@ -1,12 +1,37 @@
 services:
   web:
     build: .
-    command: bash entrypoint.sh
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/app
+    image: website_web:secure
+    container_name: website_web_manual
+    user: "1001:1001"
+    init: true
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      DJANGO_SECRET_KEY: "django-insecure-placeholder"
-      DJANGO_DEBUG: "1"
-      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0,192.168.2.210,denisprimc.com,primc.co.uk"
+      DJANGO_DEBUG: "0"
+      DJANGO_ALLOWED_HOSTS: "denisprimc.com,www.denisprimc.com"
+      DJANGO_CSRF_TRUSTED_ORIGINS: "https://denisprimc.com,https://www.denisprimc.com"
+      DJANGO_DATABASE_PATH: "/var/lib/website/db.sqlite3"
+      DJANGO_SECURE_SSL_REDIRECT: "1"
+      DJANGO_SECURE_HSTS_SECONDS: "15552000"
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - .:/app:ro
+      - /var/lib/website:/var/lib/website
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+      - /run:rw,noexec,nosuid,size=16m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

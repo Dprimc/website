@@ -3,16 +3,22 @@ import re
 import urllib.request
 import xml.etree.ElementTree as ET
 from functools import lru_cache
+from xml.sax.saxutils import escape
 
 from django.conf import settings
 from django.core.cache import cache
-from django.views.generic import TemplateView
+from django.http import HttpResponse
+from django.utils import timezone
+from django.views.generic import DetailView, ListView, TemplateView
+
+from .models import BlogPost
 
 YOUTUBE_CHANNEL_ID = "UCxVnLNkd4kKK_A-ky4kt_6A"
 USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/117.0 Safari/537.36"
 )
+
 
 def _thumbnail_from_id(video_id: str) -> str:
     return f"https://img.youtube.com/vi/{video_id}/hqdefault.jpg"
@@ -110,11 +116,7 @@ def fetch_latest_videos(limit: int = 3):
             continue
 
         thumbnails = details.get("thumbnail", {}).get("thumbnails", [])
-        thumb_url = (
-            thumbnails[-1].get("url")
-            if thumbnails
-            else _thumbnail_from_id(video_id)
-        )
+        thumb_url = thumbnails[-1].get("url") if thumbnails else _thumbnail_from_id(video_id)
 
         record = {
             "title": title,
@@ -143,10 +145,8 @@ def fetch_latest_videos(limit: int = 3):
         return [dict(item) for item in DEFAULT_FEATURED_VIDEOS[:limit]]
 
     videos.sort(key=lambda item: item.get("published", ""), reverse=True)
-
     for item in videos:
         item.pop("published", None)
-
     return videos[:limit]
 
 
@@ -186,26 +186,20 @@ def _load_github_projects(limit: int) -> list[dict]:
     for repo in repos:
         if repo.get("private") or repo.get("fork") or repo.get("archived"):
             continue
-
         project = {
             "name": repo.get("name") or "",
-            "description": repo.get("description")
-            or "No description provided yet.",
+            "description": repo.get("description") or "No description provided yet.",
             "url": repo.get("html_url") or "",
             "language": repo.get("language") or "",
             "stars": int(repo.get("stargazers_count") or 0),
             "topics": repo.get("topics") or [],
             "updated": repo.get("pushed_at") or repo.get("updated_at") or "",
         }
-
         if not project["name"] or not project["url"]:
             continue
-
         projects.append(project)
-
         if len(projects) >= limit:
             break
-
     return projects
 
 
@@ -219,7 +213,6 @@ def fetch_github_projects(limit: int = 6, *, force_refresh: bool = False):
         return cached_projects
 
     projects = _load_github_projects(limit)
-
     if projects:
         cache.set(cache_key, projects, timeout=GITHUB_CACHE_TIMEOUT)
         return projects
@@ -240,47 +233,207 @@ class HomeView(TemplateView):
             {
                 "hero": {
                     "name": "Denis Primc",
-                    "title": "YouTube Creator · Homelab & Modern Workplace",
+                    "title": "Denis Primc · Practical IT Help",
                     "summary": (
-                        "I capture every homelab upgrade, remote-work rollout, and troubleshooting session so you can follow along step by step. "
-                        "Expect practical builds, honest lessons, and downloadable resources you can put to work straight away."
+                        "Practical IT help for home users and small businesses — from Microsoft 365 "
+                        "and Windows to networks, servers, cloud and homelab solutions."
                     ),
-                    "focus_title": "What You’ll Find on the Channel",
-                    "focus_points": [
-                        "Step-by-step homelab builds using approachable hardware and cloud services.",
-                        "Modern workplace configurations across Microsoft 365, Intune, and hybrid identity.",
-                        "Automation runbooks, scripts, and troubleshooting playbooks you can reuse instantly.",
+                    "focus_title": "What This Site Is",
+                    "focus_sections": [
+                        {
+                            "title": "1. Homelab and Business Solutions",
+                            "body": "Testing practical IT solutions safely in a homelab before adapting them for small and medium-sized business use.",
+                        },
+                        {
+                            "title": "2. Infrastructure and Cloud",
+                            "body": "Windows Server, Linux, Hyper-V, Docker, Azure, Microsoft 365, secure access, maintenance, and recovery testing.",
+                        },
+                        {
+                            "title": "3. Business Automation and AI",
+                            "body": "PowerShell automation, monitoring, reporting, AI-assisted troubleshooting, and tools designed to save time.",
+                        },
                     ],
                     "cta_links": [
-                        {"label": "Watch the Latest Uploads", "url": "#videos"},
+                        {"label": "Contact Me", "url": "#contact"},
+                        {"label": "View Projects", "url": "#projects"},
+                    ],
+                },
+                "services": [
+                    {
+                        "title": "Homelab and Business Solutions",
+                        "items": [
+                            "Testing business IT solutions safely before deployment",
+                            "Monitoring dashboards and service status pages",
+                            "Backup, recovery, and update testing",
+                            "Secure remote access and internal business tools",
+                        ],
+                    },
+                    {
+                        "title": "Infrastructure and Cloud",
+                        "items": [
+                            "Windows Server, Linux, Hyper-V, and Docker",
+                            "Microsoft Azure and Microsoft 365 testing",
+                            "Business networks, DNS, HTTPS, VPNs, and secure access",
+                            "Server patching, firmware upgrades, backups, and maintenance",
+                            "High availability and disaster-recovery testing",
+                        ],
+                    },
+                    {
+                        "title": "Business Automation and AI",
+                        "items": [
+                            "PowerShell automation for repetitive IT tasks",
+                            "Automated monitoring, reporting, and maintenance",
+                            "AI-assisted troubleshooting and documentation",
+                            "Practical tools designed to save businesses time",
+                        ],
+                    },
+                ],
+                "problems": [
+                    "Personal homelab systems and self-hosted tools",
+                    "Firmware upgrades for routers, switches, access points, and server hardware",
+                    "System, package, Docker, and service upgrades I do during maintenance",
+                    "Automation scripts for maintenance and local workflows",
+                    "AI-assisted troubleshooting and practical improvements",
+                    "Dashboards, status pages, forms, and workflow tools",
+                    "Domains, reverse proxies, Docker containers, tunnels, and services",
+                    "Simple, reliable tools for infrastructure and maintenance",
+                ],
+                "about": {
+                    "title": "About Denis Primc",
+                    "body": (
+                        "IT learning and hands-on practice: homelab systems, self-hosted services, technical videos, "
+                        "Microsoft certificates, automation experiments, maintenance work, upgrades, and troubleshooting. "
+                        "The focus is practical work with Linux servers, Docker containers, reverse proxies, dashboards, firmware upgrades, regular updates, and small tools."
+                    ),
+                },
+                "microsoft_credentials": {
+                    "profile_url": "https://learn.microsoft.com/en-us/users/denisprimc/credentials/certifications?tab=credentials-tab",
+                    "summary": "A few Microsoft certificates and legacy credentials, linked to Microsoft Learn where available.",
+                    "highlights": [
                         {
-                            "label": "Subscribe on YouTube",
-                            "url": "https://www.youtube.com/@denisprimc?sub_confirmation=1",
+                            "type": "Certification",
+                            "title": "Microsoft Certified: Azure Fundamentals",
+                            "completed": "Verified on Microsoft Learn",
+                            "note": "Foundational Microsoft Azure certification covering cloud concepts, Azure services, Azure workloads, security, privacy, pricing, and support.",
+                            "url": "https://learn.microsoft.com/en-us/users/denisprimc/credentials/certification/azure-fundamentals?tab=credentials-tab",
+                            "icon_url": "https://learn.microsoft.com/en-us/media/learn/certification/badges/microsoft-certified-fundamentals-badge.svg",
+                        },
+                        {
+                            "type": "Certification",
+                            "title": "MCSA: Windows Server 2016",
+                            "completed": "Verified on Microsoft Learn",
+                            "note": "Microsoft Certified Solutions Associate certification for Windows Server 2016 administration and infrastructure skills.",
+                            "url": "https://learn.microsoft.com/en-us/users/denisprimc/credentials/certification-o-/mcsa-windows-server-2016-certification?tab=credentials-tab",
+                            "icon_url": "https://learn.microsoft.com/en-us/media/learn/certification/badges/microsoft-certified-associate-badge.svg",
+                        },
+                        {
+                            "type": "Certification",
+                            "title": "Microsoft Legacy Certification",
+                            "completed": "Verified on Microsoft Learn",
+                            "note": "Legacy Microsoft certification credential published on the Microsoft Learn profile.",
+                            "url": "https://learn.microsoft.com/en-us/users/denisprimc/credentials/certification-o-/nouid.1519?tab=credentials-tab",
+                            "icon_url": "https://learn.microsoft.com/en-us/media/learn/certification/badges/microsoft-certified-general-badge.svg",
                         },
                     ],
                 },
-                "featured_videos": fetch_latest_videos(),
-                "github_projects": fetch_github_projects(),
+                "featured_videos": fetch_latest_videos(limit=3),
+                "latest_blog_posts": BlogPost.objects.filter(status=BlogPost.Status.PUBLISHED, published_at__lte=timezone.now())[:3],
+                "github_projects": fetch_github_projects(limit=6),
                 "contact": {
-                    "email": "denis@denisprimc.com",
-                    "cta": (
-                        "Want to collaborate, sponsor a build, or request a topic for the channel? Drop me a note and let’s plan it."
-                    ),
+                    "email": "info@denisprimc.com",
+                    "coffee_url": "https://buymeacoffee.com/denisprimc",
+                    "cta": "Have an IT question or problem? Send me a message — I’m happy to offer some initial advice for free. If you find my help useful, you can optionally buy me a coffee afterwards.",
                     "social_links": [
-                        {
-                            "label": "YouTube",
-                            "url": "https://www.youtube.com/@denisprimc",
-                        },
-                        {
-                            "label": "LinkedIn",
-                            "url": "https://www.linkedin.com/in/denisprimc",
-                        },
-                        {
-                            "label": "GitHub",
-                            "url": "https://github.com/Dprimc",
-                        },
+                        {"label": "YouTube", "url": "https://www.youtube.com/@denisprimc"},
+                        {"label": "LinkedIn", "url": "https://www.linkedin.com/in/denis-primc"},
+                        {"label": "GitHub", "url": "https://github.com/Dprimc"},
+                        {"label": "Buy Me a Coffee", "url": "https://buymeacoffee.com/denisprimc"},
                     ],
                 },
             }
         )
         return context
+
+
+class BlogListView(ListView):
+    model = BlogPost
+    template_name = "portfolio/blog_list.html"
+    context_object_name = "posts"
+    paginate_by = 10
+
+    def get_queryset(self):
+        return BlogPost.objects.filter(status=BlogPost.Status.PUBLISHED, published_at__lte=timezone.now())
+
+
+class BlogDetailView(DetailView):
+    model = BlogPost
+    template_name = "portfolio/blog_detail.html"
+    context_object_name = "post"
+    slug_field = "slug"
+    slug_url_kwarg = "slug"
+
+    def get_queryset(self):
+        return BlogPost.objects.filter(status=BlogPost.Status.PUBLISHED, published_at__lte=timezone.now())
+
+
+class PasswordGeneratorView(TemplateView):
+    template_name = "portfolio/password_generator.html"
+
+
+def robots_txt(request):
+    content = "\n".join([
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /admin/",
+        "Sitemap: https://denisprimc.com/sitemap.xml",
+        "",
+    ])
+    return HttpResponse(content, content_type="text/plain")
+
+def sitemap_xml(request):
+    urls = [
+        {"loc": "https://denisprimc.com/it-support-falkirk/", "changefreq": "monthly", "priority": "0.9"},
+        {
+            "loc": "https://denisprimc.com/",
+            "changefreq": "weekly",
+            "priority": "1.0",
+        },
+        {
+            "loc": "https://denisprimc.com/blog/",
+            "changefreq": "weekly",
+            "priority": "0.8",
+        },
+    ]
+    for post in BlogPost.objects.filter(
+        status=BlogPost.Status.PUBLISHED,
+        published_at__lte=timezone.now(),
+    ).only("slug", "updated_at"):
+        urls.append(
+            {
+                "loc": f"https://denisprimc.com{post.get_absolute_url()}",
+                "lastmod": post.updated_at.date().isoformat(),
+                "changefreq": "monthly",
+                "priority": "0.7",
+            }
+        )
+
+    entries = []
+    for url in urls:
+        lines = ["  <url>", f"    <loc>{escape(url['loc'])}</loc>"]
+        if url.get("lastmod"):
+            lines.append(f"    <lastmod>{url['lastmod']}</lastmod>")
+        lines.extend(
+            [
+                f"    <changefreq>{url['changefreq']}</changefreq>",
+                f"    <priority>{url['priority']}</priority>",
+                "  </url>",
+            ]
+        )
+        entries.append("\n".join(lines))
+
+    content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{}
+</urlset>
+""".format("\n".join(entries))
+    return HttpResponse(content, content_type="application/xml")
