@@ -79,7 +79,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=falkirk-seo-20260919">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=first-business-20261124">
     {% block structured_data %}{% endblock %}
 </head>
 <body>
@@ -88,21 +88,18 @@
         <div class="container">
             <div class="brand">
                 <a href="/" class="brand__name">Denis Primc</a>
-                <p class="brand__tagline">IT help &amp; website guidance</p>
+                <p class="brand__tagline">Start a business online, step by step</p>
             </div>
             <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false">
                 <span class="nav-toggle__icon" aria-hidden="true"><span></span><span></span><span></span></span>
                 <span class="nav-toggle__label">Menu</span>
             </button>
             <nav class="site-nav" id="site-nav" aria-label="Primary">
-                <a href="/#help">IT Help</a>
-                <a href="/#website-guidance">Website Guidance</a>
-                <a href="/#projects">Projects</a>
+                <a href="/#start-here">Start here</a>
+                <a href="/#youtube">YouTube</a>
+                <a href="/blog/">Guides</a>
                 <a href="/#about-denis">About</a>
-                <a href="/#credentials">Certificates</a>
-                <a href="/blog/">Blog</a>
-                <a href="/password-generator/">Password Tool</a>
-                <a href="/#contact">Contact</a>
+                <a href="/#contact">Free intro call</a>
             </nav>
         </div>
     </header>
@@ -113,8 +110,9 @@
 
     <footer class="site-footer">
         <div class="container">
-            <p><a class="text-link" href="/it-support-falkirk/">IT support Falkirk</a> · <a class="text-link" href="/#website-guidance">Business website guidance</a></p>
-            <p>&copy; {% now "Y" %} Denis Primc · Remote IT help and website guidance · Falkirk, Scotland</p>
+            <p>Helping first-time founders get a clear, practical start online. Remote guidance worldwide by arrangement.</p>
+            <p><a class="text-link" href="/blog/">Practical guides</a> · <a class="text-link" href="/it-support-falkirk/">Local IT support</a> · <a class="text-link" href="/password-generator/">Password tool</a> · <a class="text-link" href="/#contact">Contact</a></p>
+            <p>&copy; {% now "Y" %} Denis Primc · Learn, build and improve one step at a time.</p>
         </div>
     </footer>
 
@@ -139,6 +137,6 @@
         if (consent && reject) reject.addEventListener('click', consent.reject);
       });
     </script>
-    <script src="{% static 'js/nav.js' %}?v=falkirk-seo-20260919"></script>
+    <script src="{% static 'js/nav.js' %}?v=first-business-20261124"></script>
 </body>
 </html>

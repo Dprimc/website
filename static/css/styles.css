@@ -699,3 +699,125 @@ main {
 .local-support-intro nav { margin-bottom: 1rem; font-size: 0.9rem; }
 .local-support-intro .cta-group { margin-top: 1rem; }
 #local-services, #local-contact { scroll-margin-top: 7rem; }
+/* First-business homepage: keep the established site palette and give the new
+   sections clear spacing, hierarchy and small-screen behavior. */
+.starter-hero {
+  padding-top: clamp(3.5rem, 8vw, 7rem);
+  padding-bottom: clamp(3.5rem, 7vw, 6rem);
+}
+.starter-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, .8fr);
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+.starter-hero__copy h1 { max-width: 13ch; }
+.starter-hero__copy > p:not(.eyebrow):not(.lead) { max-width: 62ch; }
+.starter-hero__panel {
+  padding: clamp(1.4rem, 3vw, 2rem);
+  border: 1px solid rgba(32, 53, 52, .14);
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, .76);
+  box-shadow: 0 1.25rem 3.5rem rgba(32, 53, 52, .08);
+}
+.starter-hero__panel-label, .starter-card__step {
+  color: var(--color-accent, #47776a);
+  font-size: .76rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.starter-stack { display: grid; gap: .4rem; }
+.starter-stack__item {
+  display: grid;
+  grid-template-columns: 2.25rem 1fr;
+  gap: .8rem;
+  align-items: start;
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(32, 53, 52, .12);
+}
+.starter-stack__item:last-child { border-bottom: 0; }
+.starter-stack__number {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #e8f0ec;
+  color: #26483f;
+  font-size: .8rem;
+  font-weight: 700;
+}
+.starter-stack__item h2 { margin: 0 0 .3rem; font-size: 1.05rem; }
+.starter-stack__item p, .starter-hero__panel-foot { margin: 0; font-size: .92rem; }
+.starter-hero__panel-foot { padding-top: .9rem; color: #52615c; }
+.personal-note { margin-top: 1rem; color: #52615c; font-size: .9rem; }
+.starter-trust { padding: 1.35rem 0; background: #e8f0ec; }
+.starter-trust__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.starter-trust__grid p { display: grid; gap: .2rem; margin: 0; }
+.starter-trust__grid span { color: #52615c; font-size: .92rem; }
+.section-intro { max-width: 48rem; margin-bottom: 2.25rem; }
+.starter-cards { align-items: stretch; }
+.starter-card { height: 100%; padding: clamp(1.25rem, 2.5vw, 1.75rem); }
+.starter-card__step { display: block; margin-bottom: 1rem; }
+.starter-inline-note {
+  max-width: 70ch;
+  margin: 1.5rem auto 0;
+  color: #52615c;
+  text-align: center;
+}
+.starter-two-col, .starter-hosting, .starter-youtube, .starter-about {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2rem, 6vw, 5rem);
+  align-items: center;
+}
+.starter-steps { display: grid; gap: 1.25rem; margin: 0; padding: 0; list-style: none; }
+.starter-steps li { display: grid; grid-template-columns: 2.5rem 1fr; gap: 1rem; }
+.starter-steps li > span {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  border-radius: 50%;
+  background: #e8f0ec;
+  color: #26483f;
+  font-weight: 700;
+}
+.starter-steps h3 { margin: 0 0 .25rem; font-size: 1.05rem; }
+.starter-steps p { margin: 0; }
+.starter-cost-note {
+  padding: clamp(1.35rem, 3vw, 2rem);
+  border-radius: 1rem;
+  background: #f1eee7;
+}
+.starter-cost-note h3 { margin-top: 0; }
+.starter-cost-note ul { margin-bottom: 0; padding-left: 1.25rem; }
+.starter-youtube__actions { max-width: 28rem; }
+.starter-youtube__actions p { margin-top: 1rem; }
+.starter-faq { max-width: 52rem; }
+.starter-faq details { padding: 1.15rem 0; border-bottom: 1px solid rgba(32, 53, 52, .16); }
+.starter-faq summary { cursor: pointer; font-weight: 700; }
+.starter-faq details p { max-width: 72ch; margin: .75rem 0 0; }
+.starter-contact-section { background: #e8f0ec; }
+.starter-contact { max-width: 52rem; text-align: center; }
+.starter-contact .lead { max-width: 44rem; margin-right: auto; margin-left: auto; }
+.starter-contact__note { margin-top: 1rem; color: #52615c; font-size: .88rem; }
+.site-nav a[href="#contact"] {
+  padding: .65rem .95rem;
+  border-radius: 999px;
+  background: #244b41;
+  color: white;
+}
+.site-footer p { max-width: 78ch; }
+@media (max-width: 800px) {
+  .starter-hero__grid, .starter-two-col, .starter-hosting, .starter-youtube, .starter-about {
+    grid-template-columns: 1fr;
+  }
+  .starter-hero__grid { gap: 2rem; }
+  .starter-trust__grid { grid-template-columns: 1fr; gap: .9rem; }
+}
